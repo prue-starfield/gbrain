@@ -15,7 +15,7 @@
 
 import { describe, expect, it } from "bun:test";
 import { spawnSync } from "node:child_process";
-import { writeFileSync, mkdtempSync, rmSync } from "node:fs";
+import { readFileSync, writeFileSync, mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
@@ -49,6 +49,18 @@ describe("run-verify-parallel.sh — CLI contract", () => {
     expect(r.status).toBe(2);
     expect(r.stderr).toContain("unknown arg");
     expect(r.stderr).toContain("usage:");
+  });
+
+  it("macOS timeout fallback preserves the check status before reaping its watchdog", () => {
+    const source = readFileSync(SCRIPT, "utf8");
+    const waitForCheck = source.indexOf('wait "$pid" 2>/dev/null');
+    const captureCheckStatus = source.indexOf('check_rc=$?', waitForCheck);
+    const killWatchdog = source.indexOf('kill "$cap_pid"', waitForCheck);
+    const restoreCheckStatus = source.indexOf('rc="$check_rc"', killWatchdog);
+    expect(waitForCheck).toBeGreaterThan(-1);
+    expect(captureCheckStatus).toBeGreaterThan(waitForCheck);
+    expect(killWatchdog).toBeGreaterThan(captureCheckStatus);
+    expect(restoreCheckStatus).toBeGreaterThan(killWatchdog);
   });
 });
 
