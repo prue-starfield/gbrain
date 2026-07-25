@@ -14,16 +14,17 @@ export const ollama: Recipe = {
   touchpoints: {
     embedding: {
       // #2271: modern local embed models added so assertTouchpoint accepts them.
-      // Each carries its own native dim (qwen3-embed-8b=4096, arctic-l-v2=1024);
-      // the recipe-wide default_dims below is only the nomic fallback, so users
-      // of the larger models pass --embedding-dimensions (allowed via
-      // trust_custom_dims). Per-model dims metadata is a tracked follow-up.
+      // Each carries its own native dim (qwen3-embed-8b=4096, arctic-l-v2=1024,
+      // BAAI/bge-m3=1024); the recipe-wide default_dims below is only the nomic
+      // fallback, so users of the larger models pass --embedding-dimensions
+      // (allowed via trust_custom_dims). Per-model dims metadata is a tracked follow-up.
       models: [
         'nomic-embed-text',
         'mxbai-embed-large',
         'all-minilm',
         'qwen3-embed-8b',
         'snowflake-arctic-embed-l-v2',
+        'BAAI/bge-m3',
       ],
       default_dims: 768, // nomic-embed-text native dim
       trust_custom_dims: true, // #2271: local models carry varied native dims
